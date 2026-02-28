@@ -1,12 +1,9 @@
 # Models Workspace
 
 ## Environment
-- GPU: RTX 5090, 32GB VRAM
-- Python venv: /mnt/data/models/.venv (huggingface_hub, hf CLI — no pip)
-- System python3 also has huggingface_hub 1.5.0
-- llama binaries: ~/.local/bin/ (llama-bench, llama-cli, llama-server, llama-mtmd-cli, llama-gguf-split)
-- Models root: /mnt/data/models/ (3.2TB free)
-- Model database: MODELS.md
+Machine-specific config (GPU, paths, disk) is in `CONFIG.md` (gitignored).
+Run `/configure` to generate it, or copy `CONFIG.md.example` and edit manually.
+Model database: MODELS.md
 
 ## Model Organization
 /mnt/data/models/<org>/<repo-name>/<file>.gguf — mirrors HuggingFace org structure

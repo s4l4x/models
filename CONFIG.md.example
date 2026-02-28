@@ -1,0 +1,13 @@
+# Machine Configuration
+# Copy this file to CONFIG.md (gitignored) and fill in your values,
+# or run /configure to auto-detect everything.
+
+## Hardware
+- GPU: <gpu name, e.g. NVIDIA GeForce RTX 5090>, <vram> GB VRAM
+- Storage: <free> TB free at <models_root>
+
+## Paths
+- Models root: <absolute path, e.g. /mnt/data/models>
+- llama binaries: <bin dir, e.g. ~/.local/bin> (llama-bench, llama-cli, llama-server, llama-mtmd-cli, llama-gguf-split)
+- Python venv: <venv path, e.g. /mnt/data/models/.venv> (huggingface_hub, hf CLI — no pip)
+- System python3: also has huggingface_hub <version>

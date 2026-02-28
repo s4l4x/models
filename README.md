@@ -53,6 +53,6 @@ llama-server \
 
 ## Environment & Setup
 
-Python venv at `.venv/` provides `huggingface_hub` and the `hf` CLI (no pip). llama.cpp binaries
-live in `~/.local/bin/`. See [CLAUDE.md](CLAUDE.md) for the full build instructions, CUDA flags,
-KV cache VRAM reference, and llama-bench gotchas.
+Run `/configure` to auto-detect your GPU, disk, and binary paths and write a local `CONFIG.md`,
+or copy [`CONFIG.md.example`](CONFIG.md.example) and fill it in manually.
+See [CLAUDE.md](CLAUDE.md) for build instructions, CUDA flags, KV cache VRAM reference, and llama-bench gotchas.
