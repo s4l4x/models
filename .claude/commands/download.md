@@ -32,6 +32,13 @@ Fetch the HuggingFace URL to get:
 - Features: tool calling, vision/multimodal, thinking/reasoning mode, context length
 - Architecture: param count, MoE or dense, layers, KV heads, head dim if listed
 
+**Also check the creator's official docs** if available (e.g. `https://unsloth.ai/docs/models/<model-name>`). Look for:
+- Recommended sampling presets (thinking vs non-thinking, coding vs general)
+- Special flags (e.g. `--chat-template-kwargs` to toggle thinking mode)
+- Required special tokens or system prompts
+- Vision mmproj filename/format (F16 vs F32)
+- Any model-specific quirks or warnings
+
 ### 4. Update MODELS.md
 Add a new section to /mnt/data/models/MODELS.md using this template:
 

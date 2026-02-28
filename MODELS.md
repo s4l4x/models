@@ -109,7 +109,7 @@ llama-server \
 
 **Features:**
 - ✅ Tool calling
-- ✅ Vision/multimodal (image, video, documents) — *llama.cpp vision not yet tested*
+- ✅ Vision/multimodal (image, video, documents) — *llama.cpp vision not yet tested; mmproj file is `mmproj-F16.gguf`*
 - ✅ Thinking/reasoning mode (enabled by default, `<think>` blocks)
 - ✅ Long context: 262k native, 1M with YaRN
 - ✅ Agentic workflows
@@ -118,8 +118,20 @@ llama-server \
 **Architecture:** 35B params / 3B active | MoE 256 experts, 8 routed + 1 shared | layers/KV-heads unconfirmed (est. 64L / 4KVH / 128dim) — see bench results for VRAM usage.
 
 **Recommended sampling:**
-- Thinking mode: `--temp 1.0 --top-p 0.95 --top-k 20 --presence-penalty 1.5`
-- Non-thinking: `--temp 0.7 --top-p 0.8 --top-k 20 --presence-penalty 1.5`
+
+| Mode | Use case | temp | top-p | top-k | presence-penalty |
+|------|----------|------|-------|-------|-----------------|
+| Thinking | General tasks | 1.0 | 0.95 | 20 | 1.5 |
+| Thinking | Precise coding | 0.6 | 0.95 | 20 | 0.0 |
+| Non-thinking | General tasks | 0.7 | 0.8 | 20 | 1.5 |
+| Non-thinking | Reasoning tasks | 1.0 | 0.95 | 20 | 1.5 |
+
+Use `--presence-penalty` (not `--repeat-penalty`) as the anti-repetition knob for this model.
+
+**To disable thinking mode** (non-thinking/instruct behavior):
+```
+--chat-template-kwargs '{"enable_thinking": false}'
+```
 
 ### Quant Inventory
 
@@ -417,6 +429,10 @@ tuned for extended reasoning chains. Surprisingly capable for its size (AIME25: 
 
 **Architecture:** 4B params | Dense | 36 layers | 32 Q-heads, 8 KV-heads | head_dim 128 — see Instruct bench results for VRAM usage.
 
+**Multi-turn note:** Do NOT include `<think>` content in conversation history — only pass the final answer to the model on subsequent turns.
+
+**Output length:** 32,768 tokens for standard queries; up to 81,920 for complex math/programming. Use `--ctx-size 131072` or higher for reasoning tasks.
+
 ### Quant Inventory
 
 | file                                 | quant      | size     | status  |
@@ -439,7 +455,7 @@ llama-cli \
   --n-gpu-layers 99 \
   --batch-size 2048 \
   --ubatch-size 512 \
-  --ctx-size 32768 \
+  --ctx-size 131072 \
   --cache-type-k f16 \
   --cache-type-v f16 \
   --temp 0.6 --min-p 0.0 --top-p 0.95 --top-k 20 \
@@ -455,7 +471,7 @@ llama-server \
   --n-gpu-layers 99 \
   --batch-size 2048 \
   --ubatch-size 512 \
-  --ctx-size 32768 \
+  --ctx-size 131072 \
   --cache-type-k f16 \
   --cache-type-v f16 \
   --temp 0.6 --top-p 0.95 --top-k 20 \
@@ -482,6 +498,13 @@ llama-server \
 **Architecture:** 21B total / 3.6B active | MoE (32 experts, 4 active) | 24L / 8KVH / 64dim (confirmed) | hybrid sliding window (12 local w=128, 12 full-attention)
 
 **Note:** Trained on OpenAI's Harmony response format — chat template embedded in tokenizer handles this automatically in llama.cpp.
+
+**Reasoning level** — set via system prompt (include as first line or standalone system message):
+```
+Reasoning: low     # fast, minimal chain-of-thought
+Reasoning: medium  # balanced (default behavior)
+Reasoning: high    # deep analysis, longer think time
+```
 
 **KV cache (full-attention layers only — 12/24 contribute to long context):**
 

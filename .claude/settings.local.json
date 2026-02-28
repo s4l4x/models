@@ -9,7 +9,8 @@
       "Bash(llama-mtmd-cli:*)",
       "Bash(/home/s4l4x/.local/bin/llama-mtmd-cli:*)",
       "Bash(ls:*)",
-      "Skill(commit-commands:commit)"
+      "Skill(commit-commands:commit)",
+      "WebFetch(domain:unsloth.ai)"
     ]
   }
 }
