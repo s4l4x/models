@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(nvidia-smi:*)",
+      "Bash(/mnt/data/models/.venv/bin/hf download:*)",
+      "Bash(llama-bench:*)",
+      "Bash(llama-cli:*)",
+      "Bash(ls:*)"
+    ]
+  }
+}
