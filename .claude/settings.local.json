@@ -5,7 +5,11 @@
       "Bash(/mnt/data/models/.venv/bin/hf download:*)",
       "Bash(llama-bench:*)",
       "Bash(llama-cli:*)",
-      "Bash(ls:*)"
+      "Bash(llama-server:*)",
+      "Bash(llama-mtmd-cli:*)",
+      "Bash(/home/s4l4x/.local/bin/llama-mtmd-cli:*)",
+      "Bash(ls:*)",
+      "Skill(commit-commands:commit)"
     ]
   }
 }

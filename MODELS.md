@@ -2,11 +2,23 @@
 
 Bench environment: RTX 5090 (32GB VRAM), llama.cpp build 2e7e63852 (8173), flash-attn, ngl=99
 
+## Contents
+
+| Model | Released | Updated | Tool | Ctx | Agentic | Vision | Think | Local Size | ♥ |
+|-------|----------|---------|:----:|:---:|:-------:|:------:|:-----:|-----------|--:|
+| [Qwen3-Coder-30B-A3B-Instruct](#qwen3-coder-30b-a3b-instruct) | 2025-07-31 | 2026-01-30 | ✅ | 256k | ✅ | ❌ | ❌ | 16.45 GiB | 508 |
+| [Qwen3.5-35B-A3B](#qwen35-35b-a3b) | 2026-02-24 | 2026-02-27 | ✅ | 262k | ✅ | ✅ | ✅ | 19.16 / 23.21 GiB | 309 |
+| [Gemma-3-27B-IT](#gemma-3-27b-it) | 2025-03-12 | 2025-08-14 | ✅ | 128k | ❌ | ✅ | ❌ | 16 GiB + 1.6 GiB mmproj | 188 |
+| [Qwen3-4B-Instruct-2507](#qwen3-4b-instruct-2507) | 2025-08-06 | 2025-08-20 | ✅ | 262k | ❌ | ❌ | ❌ | 2.4 GiB | 156 |
+| [Qwen3-4B-Thinking-2507](#qwen3-4b-thinking-2507) | 2025-08-06 | 2025-09-11 | ❌ | 262k | ❌ | ❌ | ✅ | 2.4 GiB | 94 |
+| [gpt-oss-20b](#gpt-oss-20b) | 2025-08-05 | 2025-12-19 | ✅ | 131k | ❌ | ❌ | ✅ | 11 GiB | 610 |
+
 ---
 
 ## Qwen3-Coder-30B-A3B-Instruct
 
 **URL:** https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF
+**Released:** 2025-07-31 | **Updated:** 2026-01-30 | **Likes:** 508
 **Local:** /mnt/data/models/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF/
 
 **Summary:** Coding-specialized MoE model from Alibaba. Optimized for agentic coding, repo-scale
@@ -19,15 +31,7 @@ code understanding, and tool/browser automation. Text-only. No thinking mode.
 - ❌ Vision/multimodal
 - ❌ Thinking/reasoning mode
 
-**Architecture:** 30.5B params / 3.3B active | MoE 128 experts, 8 active | 48 layers | 32 Q-heads, 4 KV-heads | head_dim 128
-
-**KV cache @ 131k ctx** (confirmed 48L / 4KVH / 128dim):
-
-| kv type | K mem  | V mem  | total  | model + KV  |
-|---------|--------|--------|--------|-------------|
-| f16     | 6 GiB  | 6 GiB  | 12 GiB | ~28.5 GiB ✅ |
-| q8_0    | 3 GiB  | 3 GiB  | 6 GiB  | ~22.5 GiB ✅ |
-| q4_0    | 1.5 GiB| 1.5 GiB| 3 GiB  | ~19.5 GiB ✅ |
+**Architecture:** 30.5B params / 3.3B active | MoE 128 experts, 8 active | 48 layers | 32 Q-heads, 4 KV-heads | head_dim 128 — see bench results for VRAM usage.
 
 ### Quant Inventory
 
@@ -98,11 +102,10 @@ llama-server \
 ## Qwen3.5-35B-A3B
 
 **URL:** https://huggingface.co/unsloth/Qwen3.5-35B-A3B-GGUF
+**Released:** 2026-02-24 | **Updated:** 2026-02-27 | **Likes:** 309
 **Local:** /mnt/data/models/unsloth/Qwen3.5-35B-A3B-GGUF/
 
-**Summary:** General-purpose MoE model from Alibaba. Handles text, images, and video with extended
-thinking/reasoning mode. Strong at coding, planning, agents, and document understanding.
-Newer generation than Qwen3-Coder; use this for non-coding or mixed workloads.
+**Summary:** General-purpose MoE model from Alibaba. Handles text, images, and video with extended thinking/reasoning mode. Strong at coding, planning, agents, and document understanding. Newer generation than Qwen3-Coder; use this for non-coding or mixed workloads.
 
 **Features:**
 - ✅ Tool calling
@@ -112,15 +115,7 @@ Newer generation than Qwen3-Coder; use this for non-coding or mixed workloads.
 - ✅ Agentic workflows
 - ✅ 201 languages
 
-**Architecture:** 35B params / 3B active | MoE 256 experts, 8 routed + 1 shared | layers/KV-heads unconfirmed (est. 64L / 4KVH / 128dim)
-
-**KV cache @ 131k ctx** (estimated — architecture unconfirmed):
-
-| kv type | total (est.) | model + KV      |
-|---------|--------------|-----------------|
-| f16     | ~16 GiB      | ~35–39 GiB ❌    |
-| q8_0    | ~8 GiB       | ~27–31 GiB ✅/⚠️ |
-| q4_0    | ~4 GiB       | ~23–27 GiB ✅    |
+**Architecture:** 35B params / 3B active | MoE 256 experts, 8 routed + 1 shared | layers/KV-heads unconfirmed (est. 64L / 4KVH / 128dim) — see bench results for VRAM usage.
 
 **Recommended sampling:**
 - Thinking mode: `--temp 1.0 --top-p 0.95 --top-k 20 --presence-penalty 1.5`
@@ -213,4 +208,348 @@ llama-server \
   --flash-attn \
   --host 0.0.0.0 \
   --port 8080
+```
+
+---
+
+## Gemma-3-27B-IT
+
+**URL:** https://huggingface.co/unsloth/gemma-3-27b-it-GGUF
+**Released:** 2025-03-12 | **Updated:** 2025-08-14 | **Likes:** 188
+**Local:** /mnt/data/models/unsloth/gemma-3-27b-it-GGUF/
+
+**Summary:** Google's Gemma 3 27B instruction-tuned vision-language model. Strong multimodal
+capabilities with a SigLIP vision encoder. Good for image understanding, OCR, document analysis.
+140+ languages.
+
+**Features:**
+- ✅ Vision/multimodal (images → text, SigLIP encoder, 896×896 input, 256 tokens/image)
+- ✅ Tool calling
+- ✅ Long context: 128k native
+- ✅ 140+ languages
+- ❌ Thinking/reasoning mode
+
+**Architecture:** 27B params | Dense | 62 layers | 32 Q-heads, **16 KV-heads** | head_dim 128
+**Hybrid attention:** sliding_window=1024, pattern=6 — only ~10 global layers keep full context KV.
+Other 52 layers cap at 1024 tokens in KV cache.
+
+**KV cache @ 131k ctx** (hybrid sliding window — much cheaper than naive calculation):
+
+| kv type | global layers (10) | local layers (52) | total KV | model + KV  |
+|---------|--------------------|-------------------|----------|-------------|
+| f16     | ~10 GiB            | ~0.4 GiB          | ~10 GiB  | ~26 GiB ✅  |
+| q8_0    | ~5 GiB             | ~0.2 GiB          | ~5 GiB   | ~21 GiB ✅  |
+| q4_0    | ~2.5 GiB           | ~0.1 GiB          | ~2.6 GiB | ~19 GiB ✅  |
+
+### Quant Inventory
+
+| file                              | quant      | size      | status  |
+|-----------------------------------|------------|-----------|---------|
+| gemma-3-27b-it-UD-Q4_K_XL.gguf  | UD-Q4_K_XL | 16 GiB    | ✅ keep |
+| mmproj-F32.gguf                   | F32        | 1.6 GiB   | ✅ keep (required for vision) |
+
+### Vision Usage
+
+> **Note:** Vision requires `llama-mtmd-cli`, NOT `llama-cli`. The standard `llama-cli` does not
+> support `--mmproj` or `--image`. `llama-server` supports `--mmproj` for API-based vision.
+
+#### llama-mtmd-cli (interactive conversation with images)
+```bash
+llama-mtmd-cli \
+  --model /mnt/data/models/unsloth/gemma-3-27b-it-GGUF/gemma-3-27b-it-UD-Q4_K_XL.gguf \
+  --mmproj /mnt/data/models/unsloth/gemma-3-27b-it-GGUF/mmproj-F32.gguf \
+  --ctx-size 16384 \
+  --n-gpu-layers 99 \
+  --temp 1.0 --repeat-penalty 1.0 --min-p 0.01 --top-k 64 --top-p 0.95 \
+  --seed 3407 --prio 2
+```
+Then type your prompt. To include an image in conversation: `/path/to/image.jpg\nYour prompt here`
+
+#### llama-server (API-based vision)
+```bash
+llama-server \
+  --model /mnt/data/models/unsloth/gemma-3-27b-it-GGUF/gemma-3-27b-it-UD-Q4_K_XL.gguf \
+  --mmproj /mnt/data/models/unsloth/gemma-3-27b-it-GGUF/mmproj-F32.gguf \
+  --n-gpu-layers 99 --flash-attn \
+  --ctx-size 16384 \
+  --cache-type-k q8_0 --cache-type-v q8_0 \
+  --host 0.0.0.0 --port 8080
+```
+
+#### API — image from URL
+```bash
+curl http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [{
+      "role": "user",
+      "content": [
+        {"type": "image_url", "image_url": {"url": "https://example.com/image.jpg"}},
+        {"type": "text", "text": "What do you see in this image?"}
+      ]
+    }],
+    "max_tokens": 512
+  }'
+```
+
+#### API — image from local file (base64)
+```bash
+IMG_B64=$(base64 -w0 /path/to/image.jpg)
+curl http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"messages\": [{
+      \"role\": \"user\",
+      \"content\": [
+        {\"type\": \"image_url\", \"image_url\": {\"url\": \"data:image/jpeg;base64,${IMG_B64}\"}},
+        {\"type\": \"text\", \"text\": \"Describe this image.\"}
+      ]
+    }],
+    \"max_tokens\": 512
+  }"
+```
+
+---
+
+## Qwen3-4B-Instruct-2507
+
+**URL:** https://huggingface.co/unsloth/Qwen3-4B-Instruct-2507-GGUF
+**Released:** 2025-08-06 | **Updated:** 2025-08-20 | **Likes:** 156
+**Local:** /mnt/data/models/unsloth/Qwen3-4B-Instruct-2507-GGUF/
+
+**Summary:** Compact 4B instruction model from Alibaba. Fast, capable for quick tasks, tool
+calling, and routing. No thinking mode — direct response only.
+
+**Features:**
+- ✅ Tool calling (OpenAI-compatible)
+- ✅ Long context: 262k native
+- ❌ Vision/multimodal
+- ❌ Thinking/reasoning mode
+
+**Architecture:** 4B params | Dense | 36 layers | 32 Q-heads, 8 KV-heads | head_dim 128 — see bench results for VRAM usage.
+
+### Quant Inventory
+
+| file                                  | quant      | size     | status  |
+|---------------------------------------|------------|----------|---------|
+| Qwen3-4B-Instruct-2507-UD-Q4_K_XL.gguf | UD-Q4_K_XL | 2.4 GiB | ✅ keep |
+| ~~Qwen3-4B-Instruct-2507-Q8_0.gguf~~   | Q8_0       | 4.0 GiB  | ❌ deleted — slower tg than Q4_K_XL (see bench) |
+
+### Bench Results (2026-02-27)
+
+Instruct and Thinking models have identical benchmark performance (same architecture, same weights structure).
+Results below apply to both.
+
+**Context depth (q8_0 KV):**
+
+| quant      | pp@512    | pp@4096   | pp@16384  | pp@65536 | tg@128      |
+|------------|-----------|-----------|-----------|----------|-------------|
+| UD-Q4_K_XL | 19,655 t/s | 17,859 t/s | 13,572 t/s | 6,153 t/s | **311 t/s** |
+| Q8_0       | 20,509 t/s | 18,391 t/s | 13,906 t/s | 6,207 t/s | 238 t/s     |
+
+⚠️ **Q8_0 is slower at tg than Q4_K_XL (+30% faster on Q4)** — tg is memory-bandwidth-bound.
+Smaller model = faster weight reads per token. Q8_0 is only ~5% faster at pp. Delete Q8_0.
+
+**KV cache type (UD-Q4_K_XL, pp@4096):**
+
+| ctk   | ctv   | pp t/s | tg t/s      | total @131k |
+|-------|-------|--------|-------------|-------------|
+| f16   | f16   | 18,784 | **331** ⭐  | ~7 GiB ✅   |
+| q8_0  | q8_0  | 18,131 | 310         | ~4.7 GiB ✅ |
+| q4_0  | q8_0  | 18,081 | 313         | ~3.5 GiB ✅ |
+| q4_0  | q4_0  | 18,325 | 312         | ~3.5 GiB ✅ |
+
+f16 KV is trivially small for this model (~4.5 GiB total), no reason to use anything else.
+
+**Sweet spot: `UD-Q4_K_XL + f16/f16` — 331 t/s tg, ~7 GiB total. Fits anywhere.**
+
+### Example Commands
+
+**llama-cli:**
+```bash
+llama-cli \
+  --model /mnt/data/models/unsloth/Qwen3-4B-Instruct-2507-GGUF/Qwen3-4B-Instruct-2507-UD-Q4_K_XL.gguf \
+  --jinja \
+  --n-gpu-layers 99 \
+  --batch-size 2048 \
+  --ubatch-size 512 \
+  --ctx-size 32768 \
+  --cache-type-k f16 \
+  --cache-type-v f16 \
+  --temp 0.7 --min-p 0.0 --top-p 0.8 --top-k 20 --repeat-penalty 1.05 \
+  --flash-attn \
+  --conversation
+```
+
+**llama-server:**
+```bash
+llama-server \
+  --model /mnt/data/models/unsloth/Qwen3-4B-Instruct-2507-GGUF/Qwen3-4B-Instruct-2507-UD-Q4_K_XL.gguf \
+  --jinja \
+  --n-gpu-layers 99 \
+  --batch-size 2048 \
+  --ubatch-size 512 \
+  --ctx-size 32768 \
+  --cache-type-k f16 \
+  --cache-type-v f16 \
+  --temp 0.7 --top-p 0.8 --top-k 20 --repeat-penalty 1.05 \
+  --flash-attn \
+  --host 0.0.0.0 --port 8080
+```
+
+---
+
+## Qwen3-4B-Thinking-2507
+
+**URL:** https://huggingface.co/unsloth/Qwen3-4B-Thinking-2507-GGUF
+**Released:** 2025-08-06 | **Updated:** 2025-09-11 | **Likes:** 94
+**Local:** /mnt/data/models/unsloth/Qwen3-4B-Thinking-2507-GGUF/
+
+**Summary:** Compact 4B thinking/reasoning model from Alibaba. Always-on thinking mode —
+generates internal reasoning before answering. Same architecture as Instruct variant but
+tuned for extended reasoning chains. Surprisingly capable for its size (AIME25: 81.3).
+
+**Features:**
+- ✅ Thinking/reasoning mode (always on, cannot be disabled)
+- ✅ Long context: 262k native
+- ❌ Vision/multimodal
+- ❌ Tool calling (limited — thinking mode conflicts)
+
+**Architecture:** 4B params | Dense | 36 layers | 32 Q-heads, 8 KV-heads | head_dim 128 — see Instruct bench results for VRAM usage.
+
+### Quant Inventory
+
+| file                                 | quant      | size     | status  |
+|--------------------------------------|------------|----------|---------|
+| Qwen3-4B-Thinking-2507-UD-Q4_K_XL.gguf | UD-Q4_K_XL | 2.4 GiB | ✅ keep |
+| ~~Qwen3-4B-Thinking-2507-Q8_0.gguf~~   | Q8_0       | 4.0 GiB  | ❌ deleted — see Instruct bench |
+
+### Bench Results (2026-02-27)
+
+See Qwen3-4B-Instruct-2507 bench results — identical performance (same architecture).
+Sweet spot: `UD-Q4_K_XL + f16/f16` — 331 t/s tg, ~7 GiB total.
+
+### Example Commands
+
+**llama-cli:**
+```bash
+llama-cli \
+  --model /mnt/data/models/unsloth/Qwen3-4B-Thinking-2507-GGUF/Qwen3-4B-Thinking-2507-UD-Q4_K_XL.gguf \
+  --jinja \
+  --n-gpu-layers 99 \
+  --batch-size 2048 \
+  --ubatch-size 512 \
+  --ctx-size 32768 \
+  --cache-type-k f16 \
+  --cache-type-v f16 \
+  --temp 0.6 --min-p 0.0 --top-p 0.95 --top-k 20 \
+  --flash-attn \
+  --conversation
+```
+
+**llama-server:**
+```bash
+llama-server \
+  --model /mnt/data/models/unsloth/Qwen3-4B-Thinking-2507-GGUF/Qwen3-4B-Thinking-2507-UD-Q4_K_XL.gguf \
+  --jinja \
+  --n-gpu-layers 99 \
+  --batch-size 2048 \
+  --ubatch-size 512 \
+  --ctx-size 32768 \
+  --cache-type-k f16 \
+  --cache-type-v f16 \
+  --temp 0.6 --top-p 0.95 --top-k 20 \
+  --flash-attn \
+  --host 0.0.0.0 --port 8080
+```
+
+---
+
+## gpt-oss-20b
+
+**URL:** https://huggingface.co/unsloth/gpt-oss-20b-GGUF
+**Released:** 2025-08-05 | **Updated:** 2025-12-19 | **Likes:** 610
+**Local:** /mnt/data/models/unsloth/gpt-oss-20b-GGUF/
+
+**Summary:** OpenAI's open-weight MoE model designed for lower latency and local/specialized use cases. Supports configurable reasoning levels (low/medium/high), tool use, and structured outputs. Licensed Apache 2.0.
+
+**Features:**
+- ✅ Tool calling (function calling, structured outputs)
+- ❌ Vision/multimodal
+- ✅ Reasoning levels: low / medium / high (configurable via system prompt)
+- ✅ Context: 131k (YaRN from 4096 native)
+
+**Architecture:** 21B total / 3.6B active | MoE (32 experts, 4 active) | 24L / 8KVH / 64dim (confirmed) | hybrid sliding window (12 local w=128, 12 full-attention)
+
+**Note:** Trained on OpenAI's Harmony response format — chat template embedded in tokenizer handles this automatically in llama.cpp.
+
+**KV cache (full-attention layers only — 12/24 contribute to long context):**
+
+| ctx   | f16   | q8_0  | q4_0  |
+|-------|-------|-------|-------|
+| 8k    | ~0.2G | ~0.1G | ~0.1G |
+| 32k   | ~0.7G | ~0.4G | ~0.2G |
+| 131k  | ~3.0G | ~1.5G | ~0.8G |
+
+f16 KV trivially fits at any context (11G model + 3G KV = 14G total at 131k).
+
+### Quant Inventory
+
+| file | quant | size | status |
+|------|-------|------|--------|
+| gpt-oss-20b-Q4_K_S.gguf | Q4_K_S | 11 GiB | ✅ keep |
+
+### Bench Results (2026-02-27)
+
+**Context depth (f16 KV):**
+
+| quant   | pp@512     | pp@4096    | pp@16384   | pp@65536  | tg@128      |
+|---------|------------|------------|------------|-----------|-------------|
+| Q4_K_S  | 13414 t/s  | 13745 t/s  | 12810 t/s  | 9738 t/s  | **368 t/s** |
+
+Moderate long-context degradation: pp@65k = 73% of pp@512.
+
+**KV cache type (Q4_K_S, pp@4096):**
+
+| ctk   | ctv   | pp t/s | tg t/s     | total @131k |
+|-------|-------|--------|------------|-------------|
+| f16   | f16   | 13745  | **368** ⭐ | ~14 GiB ✅  |
+| q8_0  | q8_0  | 13657  | 369        | ~12.5 GiB ✅ |
+| q4_0  | q8_0  | 13791  | 359        | ~11.8 GiB ✅ |
+| q4_0  | q4_0  | 13729  | 365        | ~11.4 GiB ✅ |
+
+KV cache is trivially small (~3 GiB f16 at 131k) — no reason to quantize it. All configs within noise; f16/f16 is simplest and tied-best.
+
+**Sweet spot: `Q4_K_S + f16/f16` — 368 t/s tg, ~14 GiB total. Use f16 KV at any context.**
+
+### Example Commands
+
+**llama-cli:**
+```bash
+llama-cli \
+  --model /mnt/data/models/unsloth/gpt-oss-20b-GGUF/gpt-oss-20b-Q4_K_S.gguf \
+  --n-gpu-layers 99 \
+  --batch-size 2048 \
+  --ubatch-size 512 \
+  --ctx-size 65536 \
+  --cache-type-k f16 \
+  --cache-type-v f16 \
+  --temp 0.6 --top-p 0.95 --top-k 20 \
+  --flash-attn \
+  --conversation
+```
+
+**llama-server:**
+```bash
+llama-server \
+  --model /mnt/data/models/unsloth/gpt-oss-20b-GGUF/gpt-oss-20b-Q4_K_S.gguf \
+  --n-gpu-layers 99 \
+  --batch-size 2048 \
+  --ubatch-size 512 \
+  --ctx-size 65536 \
+  --cache-type-k f16 \
+  --cache-type-v f16 \
+  --temp 0.6 --top-p 0.95 --top-k 20 \
+  --flash-attn \
+  --host 0.0.0.0 --port 8080
 ```

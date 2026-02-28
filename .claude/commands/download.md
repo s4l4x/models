@@ -22,6 +22,11 @@ Arguments: $ARGUMENTS
 ```
 
 ### 3. Fetch model info
+Get the release date:
+```bash
+hf models info <repo_id> | jq -r '"Released: \(.created_at | split("T")[0])\nUpdated:  \(.last_modified | split("T")[0])\nLikes:    \(.likes)"'
+```
+
 Fetch the HuggingFace URL to get:
 - Model summary (1-2 sentences)
 - Features: tool calling, vision/multimodal, thinking/reasoning mode, context length
@@ -36,6 +41,7 @@ Add a new section to /mnt/data/models/MODELS.md using this template:
 ## <Model Name>
 
 **URL:** <hf-url>
+**Released:** <YYYY-MM-DD> | **Updated:** <YYYY-MM-DD> | **Likes:** <N>
 **Local:** /mnt/data/models/<org>/<repo-name>/
 
 **Summary:** <1-2 sentence summary>
