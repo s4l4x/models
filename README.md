@@ -26,6 +26,8 @@ Personal GGUF model workspace on RTX 5090 — download, bench, and serve local L
   <org>/<repo-name>/<file>.gguf   # mirrors HuggingFace org structure
   MODELS.md                       # model database (canonical)
   CLAUDE.md                       # agent instructions (env, build, flags)
+  CONFIG.md                       # machine-specific config (gitignored)
+  CONFIG.md.example               # template — copy and edit, or run /configure
   README.md                       # this file
 ```
 
@@ -57,9 +59,10 @@ llama-server \
   --flash-attn --host 0.0.0.0 --port 8080
 ```
 
-## Environment & Setup
+## Configuration
 
-Run `/configure` to auto-detect your GPU, disk, and binary paths — it writes a local `CONFIG.md`
-(gitignored). For a fresh machine, follow with `/build` to compile llama.cpp.
-Copy [`CONFIG.md.example`](CONFIG.md.example) to edit manually instead.
+`CONFIG.md` (gitignored) holds machine-specific paths and hardware info. Generate it with
+`/configure` (auto-detects GPU, disk, binaries, llama.cpp repo), or copy
+[`CONFIG.md.example`](CONFIG.md.example) and edit manually.
+
 See [CLAUDE.md](CLAUDE.md) for CUDA build flags, KV cache VRAM reference, and llama-bench gotchas.

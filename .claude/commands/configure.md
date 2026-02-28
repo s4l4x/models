@@ -31,6 +31,13 @@ done
 ```
 
 ```bash
+# llama.cpp repo location (check common locations)
+for d in ~/llama.cpp /opt/llama.cpp /usr/local/src/llama.cpp; do
+  [ -f "$d/CMakeLists.txt" ] && echo "$d" && break
+done || echo "llama.cpp: not found"
+```
+
+```bash
 # Python venv hf CLI
 ls <models_root>/.venv/bin/hf 2>/dev/null || which hf 2>/dev/null || echo "hf: not found"
 ```
@@ -40,12 +47,18 @@ ls <models_root>/.venv/bin/hf 2>/dev/null || which hf 2>/dev/null || echo "hf: n
 python3 -c "import huggingface_hub; print(huggingface_hub.__version__)" 2>/dev/null || echo "not installed"
 ```
 
-### 3. Derive binary directory
+### 3. Resolve llama.cpp repo path
+
+If the llama.cpp repo was not found automatically, ask the user:
+"Where is your llama.cpp repo? (needed for /build)" and use their answer as `<llama_cpp_dir>`.
+If found automatically, use that path without asking.
+
+### 5. Derive binary directory
 
 All llama binaries should share the same parent directory. Use `dirname` of any found binary.
 If none found, note "not found — run /build to install".
 
-### 4. Write CONFIG.md
+### 6. Write CONFIG.md
 
 Write `/mnt/data/models/CONFIG.md` (this file is gitignored):
 
@@ -60,10 +73,11 @@ Write `/mnt/data/models/CONFIG.md` (this file is gitignored):
 ## Paths
 - Models root: <models_root>
 - llama binaries: <bin_dir> (llama-bench, llama-cli, llama-server, llama-mtmd-cli, llama-gguf-split)
+- llama.cpp repo: <llama_cpp_dir>
 - Python venv: <models_root>/.venv (huggingface_hub, hf CLI — no pip)
 - System python3: also has huggingface_hub <version>
 ```
 
-### 5. Confirm
+### 7. Confirm
 
 Print a summary of what was written and note any values that could not be auto-detected.

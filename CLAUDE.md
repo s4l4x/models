@@ -8,13 +8,6 @@ Model database: MODELS.md
 ## Model Organization
 /mnt/data/models/<org>/<repo-name>/<file>.gguf — mirrors HuggingFace org structure
 
-## Slash Commands
-- /configure — detect GPU, disk, binary paths; write CONFIG.md
-- /build     — clone/build llama.cpp with CUDA flags, install binaries
-- /download  — download a model by HF URL, write info to MODELS.md, optionally bench
-- /bench     — benchmark GGUF models with llama-bench, write results to MODELS.md
-- /monitor   — snapshot VRAM, detect running llama process, suggest flag adjustments
-
 ## Building llama.cpp
 
 ```bash

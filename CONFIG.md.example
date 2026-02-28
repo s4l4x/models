@@ -9,5 +9,6 @@
 ## Paths
 - Models root: <absolute path, e.g. /mnt/data/models>
 - llama binaries: <bin dir, e.g. ~/.local/bin> (llama-bench, llama-cli, llama-server, llama-mtmd-cli, llama-gguf-split)
+- llama.cpp repo: <path to llama.cpp source, e.g. ~/code/llama.cpp>
 - Python venv: <venv path, e.g. /mnt/data/models/.venv> (huggingface_hub, hf CLI — no pip)
 - System python3: also has huggingface_hub <version>
