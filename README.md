@@ -56,7 +56,7 @@ llama-server \
   --model /mnt/data/models/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF/Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL.gguf \
   --n-gpu-layers 99 --ctx-size 131072 \
   --cache-type-k f16 --cache-type-v f16 \
-  --flash-attn --host 0.0.0.0 --port 8080
+  --flash-attn 1 --host 0.0.0.0 --port 8080
 ```
 
 ## Configuration

@@ -65,7 +65,7 @@ llama-cli \
   --cache-type-k f16 \
   --cache-type-v f16 \
   --temp 0.7 --min-p 0.0 --top-p 0.8 --top-k 20 --repeat-penalty 1.05 \
-  --flash-attn \
+  --flash-attn 1 \
   --conversation
 ```
 
@@ -81,7 +81,7 @@ llama-server \
   --cache-type-k f16 \
   --cache-type-v f16 \
   --temp 0.7 --top-p 0.8 --top-k 20 --repeat-penalty 1.05 \
-  --flash-attn \
+  --flash-attn 1 \
   --host 0.0.0.0 \
   --port 8080
 ```
@@ -98,7 +98,7 @@ llama-server \
 
 **Features:**
 - ✅ Tool calling
-- ✅ Vision/multimodal (image, video, documents) — *llama.cpp vision not yet tested; mmproj file is `mmproj-F16.gguf`*
+- ✅ Vision/multimodal (image, video, documents) — mmproj: `mmproj-F16.gguf`
 - ✅ Thinking/reasoning mode (enabled by default, `<think>` blocks)
 - ✅ Long context: 262k native, 1M with YaRN
 - ✅ Agentic workflows
@@ -128,6 +128,7 @@ Use `--presence-penalty` (not `--repeat-penalty`) as the anti-repetition knob fo
 |-----------------------------------|------------|-----------|---------|
 | Qwen3.5-35B-A3B-UD-Q4_K_XL.gguf | UD-Q4_K_XL | 19.16 GiB | ✅ keep |
 | Qwen3.5-35B-A3B-UD-Q5_K_XL.gguf | UD-Q5_K_XL | 23.21 GiB | ✅ keep |
+| mmproj-F16.gguf                   | F16        | 0.9 GiB   | ✅ keep (required for vision) |
 
 ### Bench Results (2025-02-27)
 
@@ -174,7 +175,7 @@ llama-cli \
   --cache-type-k q8_0 \
   --cache-type-v q8_0 \
   --temp 0.7 --min-p 0.0 --top-p 0.8 --top-k 20 --repeat-penalty 1.05 \
-  --flash-attn \
+  --flash-attn 1 \
   --conversation
 ```
 
@@ -190,7 +191,7 @@ llama-cli \
   --cache-type-k q4_0 \
   --cache-type-v q8_0 \
   --temp 0.7 --min-p 0.0 --top-p 0.8 --top-k 20 --repeat-penalty 1.05 \
-  --flash-attn \
+  --flash-attn 1 \
   --conversation
 ```
 
@@ -206,9 +207,73 @@ llama-server \
   --cache-type-k q8_0 \
   --cache-type-v q8_0 \
   --temp 0.7 --top-p 0.8 --top-k 20 --repeat-penalty 1.05 \
-  --flash-attn \
+  --flash-attn 1 \
   --host 0.0.0.0 \
   --port 8080
+```
+
+### Vision Usage
+
+> **Note:** Vision requires `llama-mtmd-cli`, NOT `llama-cli`. The standard `llama-cli` does not
+> support `--mmproj` or `--image`. `llama-server` supports `--mmproj` for API-based vision.
+
+#### llama-mtmd-cli (interactive conversation with images)
+```bash
+llama-mtmd-cli \
+  --model /mnt/data/models/unsloth/Qwen3.5-35B-A3B-GGUF/Qwen3.5-35B-A3B-UD-Q4_K_XL.gguf \
+  --mmproj /mnt/data/models/unsloth/Qwen3.5-35B-A3B-GGUF/mmproj-F16.gguf \
+  --n-gpu-layers 99 \
+  --ctx-size 16384 \
+  --cache-type-k q8_0 --cache-type-v q8_0 \
+  --flash-attn 1 \
+  --temp 0.7 --top-p 0.8 --top-k 20
+```
+> **Note:** Do NOT use `--jinja` with `llama-mtmd-cli` — it conflicts with the vision template handling and causes a crash (`std::out_of_range`). Use `--jinja` only for text-only inference with `llama-cli`/`llama-server`.
+Then type your prompt. To include an image in conversation: `/path/to/image.jpg\nYour prompt here`
+
+#### llama-server (API-based vision)
+```bash
+llama-server \
+  --model /mnt/data/models/unsloth/Qwen3.5-35B-A3B-GGUF/Qwen3.5-35B-A3B-UD-Q4_K_XL.gguf \
+  --mmproj /mnt/data/models/unsloth/Qwen3.5-35B-A3B-GGUF/mmproj-F16.gguf \
+  --n-gpu-layers 99 \
+  --ctx-size 16384 \
+  --cache-type-k q8_0 --cache-type-v q8_0 \
+  --flash-attn 1 \
+  --host 0.0.0.0 --port 8080
+```
+
+#### API — image from URL
+```bash
+curl http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [{
+      "role": "user",
+      "content": [
+        {"type": "image_url", "image_url": {"url": "https://example.com/image.jpg"}},
+        {"type": "text", "text": "What do you see in this image?"}
+      ]
+    }],
+    "max_tokens": 512
+  }'
+```
+
+#### API — image from local file (base64)
+```bash
+IMG_B64=$(base64 -w0 /path/to/image.jpg)
+curl http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"messages\": [{
+      \"role\": \"user\",
+      \"content\": [
+        {\"type\": \"image_url\", \"image_url\": {\"url\": \"data:image/jpeg;base64,\${IMG_B64}\"}},
+        {\"type\": \"text\", \"text\": \"Describe this image.\"}
+      ]
+    }],
+    \"max_tokens\": 512
+  }"
 ```
 
 ---
@@ -271,7 +336,7 @@ Then type your prompt. To include an image in conversation: `/path/to/image.jpg\
 llama-server \
   --model /mnt/data/models/unsloth/gemma-3-27b-it-GGUF/gemma-3-27b-it-UD-Q4_K_XL.gguf \
   --mmproj /mnt/data/models/unsloth/gemma-3-27b-it-GGUF/mmproj-F32.gguf \
-  --n-gpu-layers 99 --flash-attn \
+  --n-gpu-layers 99 --flash-attn 1 \
   --ctx-size 16384 \
   --cache-type-k q8_0 --cache-type-v q8_0 \
   --host 0.0.0.0 --port 8080
@@ -378,7 +443,7 @@ llama-cli \
   --cache-type-k f16 \
   --cache-type-v f16 \
   --temp 0.7 --min-p 0.0 --top-p 0.8 --top-k 20 --repeat-penalty 1.05 \
-  --flash-attn \
+  --flash-attn 1 \
   --conversation
 ```
 
@@ -394,7 +459,7 @@ llama-server \
   --cache-type-k f16 \
   --cache-type-v f16 \
   --temp 0.7 --top-p 0.8 --top-k 20 --repeat-penalty 1.05 \
-  --flash-attn \
+  --flash-attn 1 \
   --host 0.0.0.0 --port 8080
 ```
 
@@ -448,7 +513,7 @@ llama-cli \
   --cache-type-k f16 \
   --cache-type-v f16 \
   --temp 0.6 --min-p 0.0 --top-p 0.95 --top-k 20 \
-  --flash-attn \
+  --flash-attn 1 \
   --conversation
 ```
 
@@ -464,7 +529,7 @@ llama-server \
   --cache-type-k f16 \
   --cache-type-v f16 \
   --temp 0.6 --top-p 0.95 --top-k 20 \
-  --flash-attn \
+  --flash-attn 1 \
   --host 0.0.0.0 --port 8080
 ```
 
@@ -547,7 +612,7 @@ llama-cli \
   --cache-type-k f16 \
   --cache-type-v f16 \
   --temp 0.6 --top-p 0.95 --top-k 20 \
-  --flash-attn \
+  --flash-attn 1 \
   --conversation
 ```
 
@@ -562,6 +627,6 @@ llama-server \
   --cache-type-k f16 \
   --cache-type-v f16 \
   --temp 0.6 --top-p 0.95 --top-k 20 \
-  --flash-attn \
+  --flash-attn 1 \
   --host 0.0.0.0 --port 8080
 ```

@@ -21,6 +21,11 @@ Arguments: $ARGUMENTS
   --local-dir /mnt/data/models/<org>/<repo-name>/
 ```
 
+**If the model supports vision** (i.e. has mmproj files in the repo):
+- Also download the mmproj file: prefer `mmproj-F16.gguf` if available, otherwise `mmproj-F32.gguf`
+- Add it to the quant inventory with status `✅ keep (required for vision)`
+- Add a Vision Usage section to MODELS.md (see Gemma-3-27B-IT or Qwen3.5-35B-A3B sections as templates)
+
 ### 3. Fetch model info
 Get the release date:
 ```bash

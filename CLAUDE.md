@@ -39,6 +39,7 @@ falls back to f16 regardless of what you pass to `-ctk`/`-ctv`.
 
 ## Vision Inference
 - Requires `llama-mtmd-cli` (not `llama-cli`)
+- Do NOT use `--jinja` with `llama-mtmd-cli` — conflicts with vision template handling, causes crash
 - Gemma-3-27b: use `--mmproj mmproj-F32.gguf`
 - Recommended sampling for Gemma: `--temp 1.0 --repeat-penalty 1.0 --min-p 0.01 --top-k 64 --top-p 0.95`
 - See MODELS.md Gemma-3-27B section for full commands
