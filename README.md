@@ -33,6 +33,8 @@ Personal GGUF model workspace on RTX 5090 — download, bench, and serve local L
 
 | Command | Description |
 |---------|-------------|
+| `/configure` | Auto-detect GPU, disk, and binary paths — writes `CONFIG.md` |
+| `/build` | Clone and build llama.cpp with CUDA/Blackwell flags, install binaries |
 | `/download <hf-url> [pattern]` | Download a GGUF from HuggingFace, record metadata in MODELS.md, optionally bench |
 | `/bench <model.gguf> [...]` | Run llama-bench sweep (context depth + KV cache types), write results to MODELS.md |
 | `/monitor` | Snapshot VRAM usage, detect running llama process, suggest flag adjustments to fit in 32 GB |
@@ -40,10 +42,14 @@ Personal GGUF model workspace on RTX 5090 — download, bench, and serve local L
 ## Quick Start
 
 ```bash
-# 1. Download a model
+# Fresh machine setup
+/configure   # detect hardware, write CONFIG.md
+/build       # build llama.cpp and install binaries
+
+# Download and serve a model
 /download https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF *UD-Q4_K_XL*
 
-# 2. Serve it (copy the command from MODELS.md → Example Commands)
+# Serve it (full command in MODELS.md → Example Commands)
 llama-server \
   --model /mnt/data/models/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF/Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL.gguf \
   --n-gpu-layers 99 --ctx-size 131072 \
@@ -53,6 +59,7 @@ llama-server \
 
 ## Environment & Setup
 
-Run `/configure` to auto-detect your GPU, disk, and binary paths and write a local `CONFIG.md`,
-or copy [`CONFIG.md.example`](CONFIG.md.example) and fill it in manually.
-See [CLAUDE.md](CLAUDE.md) for build instructions, CUDA flags, KV cache VRAM reference, and llama-bench gotchas.
+Run `/configure` to auto-detect your GPU, disk, and binary paths — it writes a local `CONFIG.md`
+(gitignored). For a fresh machine, follow with `/build` to compile llama.cpp.
+Copy [`CONFIG.md.example`](CONFIG.md.example) to edit manually instead.
+See [CLAUDE.md](CLAUDE.md) for CUDA build flags, KV cache VRAM reference, and llama-bench gotchas.
