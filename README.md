@@ -12,14 +12,12 @@ Personal GGUF model workspace on RTX 5090 — download, bench, and serve local L
 
 | Model | Ctx | Tool | Vision | Think | Size |
 |-------|:---:|:----:|:------:|:-----:|------|
-| Qwen3-Coder-30B-A3B-Instruct | 256k | ✅ | ❌ | ❌ | 16.45 GiB |
-| Qwen3.5-35B-A3B | 262k | ✅ | ✅ | ✅ | 19.16 / 23.21 GiB |
-| Gemma-3-27B-IT | 128k | ✅ | ✅ | ❌ | 16 GiB + 1.6 GiB mmproj |
-| Qwen3-4B-Instruct-2507 | 262k | ✅ | ❌ | ❌ | 2.4 GiB |
-| Qwen3-4B-Thinking-2507 | 262k | ❌ | ❌ | ✅ | 2.4 GiB |
-| gpt-oss-20b | 131k | ✅ | ❌ | ✅ | 11 GiB |
-
-See [MODELS.md](MODELS.md) for full architecture details, bench results, and run commands.
+| [Qwen3-Coder-30B-A3B-Instruct](MODELS.md#qwen3-coder-30b-a3b-instruct) | 256k | ✅ | ❌ | ❌ | 16.45 GiB |
+| [Qwen3.5-35B-A3B](MODELS.md#qwen35-35b-a3b) | 262k | ✅ | ✅ | ✅ | 19.16 / 23.21 GiB |
+| [Gemma-3-27B-IT](MODELS.md#gemma-3-27b-it) | 128k | ✅ | ✅ | ❌ | 16 GiB + 1.6 GiB mmproj |
+| [Qwen3-4B-Instruct-2507](MODELS.md#qwen3-4b-instruct-2507) | 262k | ✅ | ❌ | ❌ | 2.4 GiB |
+| [Qwen3-4B-Thinking-2507](MODELS.md#qwen3-4b-thinking-2507) | 262k | ❌ | ❌ | ✅ | 2.4 GiB |
+| [gpt-oss-20b](MODELS.md#gpt-oss-20b) | 131k | ✅ | ❌ | ✅ | 11 GiB |
 
 ## Directory Layout
 

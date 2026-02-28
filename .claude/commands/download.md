@@ -39,8 +39,9 @@ Fetch the HuggingFace URL to get:
 - Vision mmproj filename/format (F16 vs F32)
 - Any model-specific quirks or warnings
 
-### 4. Update MODELS.md
-Add a new section to /mnt/data/models/MODELS.md using this template:
+### 4. Update MODELS.md and README.md
+
+**4a. Add a new section to /mnt/data/models/MODELS.md** using this template:
 
 ```markdown
 ---
@@ -75,6 +76,15 @@ Add a new section to /mnt/data/models/MODELS.md using this template:
 **llama-server:**
 <same but with --host 0.0.0.0 --port 8080>
 ```
+
+**4b. Append a row to the Models table in /mnt/data/models/README.md:**
+
+```markdown
+| [<Model Name>](MODELS.md#<anchor>) | <ctx> | ✅/❌ | ✅/❌ | ✅/❌ | <size> |
+```
+
+- `<anchor>` = heading slug (lowercase, spaces→hyphens, punctuation stripped)
+- Columns: Model (linked), Ctx, Tool, Vision, Think, Size
 
 ### 5. Offer to bench
 Ask the user: "Download complete. Run bench sweep now? (context depth + KV cache type)"

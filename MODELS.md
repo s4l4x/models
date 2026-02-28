@@ -2,17 +2,6 @@
 
 Bench environment: RTX 5090 (32GB VRAM), llama.cpp build 2e7e63852 (8173), flash-attn, ngl=99
 
-## Contents
-
-| Model | Released | Updated | Tool | Ctx | Agentic | Vision | Think | Local Size | ♥ |
-|-------|----------|---------|:----:|:---:|:-------:|:------:|:-----:|-----------|--:|
-| [Qwen3-Coder-30B-A3B-Instruct](#qwen3-coder-30b-a3b-instruct) | 2025-07-31 | 2026-01-30 | ✅ | 256k | ✅ | ❌ | ❌ | 16.45 GiB | 508 |
-| [Qwen3.5-35B-A3B](#qwen35-35b-a3b) | 2026-02-24 | 2026-02-27 | ✅ | 262k | ✅ | ✅ | ✅ | 19.16 / 23.21 GiB | 309 |
-| [Gemma-3-27B-IT](#gemma-3-27b-it) | 2025-03-12 | 2025-08-14 | ✅ | 128k | ❌ | ✅ | ❌ | 16 GiB + 1.6 GiB mmproj | 188 |
-| [Qwen3-4B-Instruct-2507](#qwen3-4b-instruct-2507) | 2025-08-06 | 2025-08-20 | ✅ | 262k | ❌ | ❌ | ❌ | 2.4 GiB | 156 |
-| [Qwen3-4B-Thinking-2507](#qwen3-4b-thinking-2507) | 2025-08-06 | 2025-09-11 | ❌ | 262k | ❌ | ❌ | ✅ | 2.4 GiB | 94 |
-| [gpt-oss-20b](#gpt-oss-20b) | 2025-08-05 | 2025-12-19 | ✅ | 131k | ❌ | ❌ | ✅ | 11 GiB | 610 |
-
 ---
 
 ## Qwen3-Coder-30B-A3B-Instruct
