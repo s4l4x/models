@@ -2,14 +2,21 @@
   "permissions": {
     "allow": [
       "Bash(nvidia-smi:*)",
-      "Bash(/mnt/data/models/.venv/bin/hf download:*)",
+      "Bash(hf:*)",
       "Bash(llama-bench:*)",
       "Bash(llama-cli:*)",
       "Bash(llama-server:*)",
       "Bash(llama-mtmd-cli:*)",
-      "Bash(/home/s4l4x/.local/bin/llama-mtmd-cli:*)",
       "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(curl:*)",
+      "Bash(date:*)",
+      "Bash(whoami:*)",
+      "Bash(systemctl:*)",
+      "Bash(journalctl:*)",
+      "Bash(loginctl:*)",
       "Skill(commit-commands:commit)",
+      "WebFetch(domain:huggingface.co)",
       "WebFetch(domain:unsloth.ai)"
     ]
   }
