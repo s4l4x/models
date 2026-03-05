@@ -14,9 +14,26 @@ Arguments: $ARGUMENTS
 - Second arg (optional): file pattern (e.g. *UD-Q4_K_XL*). Default: ask the user which quant(s) to download.
 - Local dir: /mnt/data/models/<org>/<repo-name>/ (derived from repo_id)
 
-### 2. Download
+### 2. Check for existing files
+
+Check if `/mnt/data/models/<org>/<repo-name>/` already has `.gguf` files matching the pattern.
+
+**If local matches exist**, run a dry-run to compare against remote:
 ```bash
-/mnt/data/models/.venv/bin/hf download <repo_id> \
+hf download <repo_id> \
+  --include "<pattern>" \
+  --local-dir /mnt/data/models/<org>/<repo-name>/ \
+  --dry-run
+```
+- Files showing `-` in the "Bytes to download" column are already up-to-date (etag matches remote)
+- If **all** matched files show `-`: tell the user "Already up to date — nothing to download" and stop (or offer to skip ahead to metadata update)
+- If **some** files need updating: show which ones changed and ask the user to confirm before proceeding
+
+**If no local matches exist**, proceed directly to step 3.
+
+### 3. Download
+```bash
+hf download <repo_id> \
   --include "<pattern>" \
   --local-dir /mnt/data/models/<org>/<repo-name>/
 ```
@@ -26,27 +43,33 @@ Arguments: $ARGUMENTS
 - Add it to the quant inventory with status `✅ keep (required for vision)`
 - Add a Vision Usage section to MODELS.md (see Gemma-3-27B-IT or Qwen3.5-35B-A3B sections as templates)
 
-### 3. Fetch model info
-Get the release date:
-```bash
-hf models info <repo_id> | jq -r '"Released: \(.created_at | split("T")[0])\nUpdated:  \(.last_modified | split("T")[0])\nLikes:    \(.likes)"'
-```
+### 4. Fetch model info
 
-Fetch the HuggingFace URL to get:
+**Use the `hf` CLI** (NOT python) for all metadata:
+```bash
+hf models info <repo_id>
+```
+This returns JSON with `created_at`, `last_modified`, `likes`, `tags`, `gguf` (architecture, context_length), and `siblings` (file list). Parse with `jq` as needed.
+
+**Use WebFetch** on the HuggingFace model page and the base model page to get:
 - Model summary (1-2 sentences)
 - Features: tool calling, vision/multimodal, thinking/reasoning mode, context length
 - Architecture: param count, MoE or dense, layers, KV heads, head dim if listed
-
-**Also check the creator's official docs** if available (e.g. `https://unsloth.ai/docs/models/<model-name>`). Look for:
 - Recommended sampling presets (thinking vs non-thinking, coding vs general)
 - Special flags (e.g. `--chat-template-kwargs` to toggle thinking mode)
-- Required special tokens or system prompts
 - Vision mmproj filename/format (F16 vs F32)
 - Any model-specific quirks or warnings
 
-### 4. Update MODELS.md and README.md
+**Also check the creator's official docs** if available (e.g. `https://unsloth.ai/docs/models/<model-name>`). Look for:
+- Model-specific quirks or warnings
+- Recommended sampling parameters
+- Special flags or chat template requirements
 
-**4a. Add a new section to /mnt/data/models/MODELS.md** using this template:
+**Do NOT use python** for fetching metadata — the `hf` CLI and WebFetch cover everything needed.
+
+### 5. Update MODELS.md and README.md
+
+**5a. Add a new section to /mnt/data/models/MODELS.md** using this template:
 
 ```markdown
 ---
@@ -82,7 +105,7 @@ Fetch the HuggingFace URL to get:
 <same but with --host 0.0.0.0 --port 8080>
 ```
 
-**4b. Append a row to the Models table in /mnt/data/models/README.md:**
+**5b. Append a row to the Models table in /mnt/data/models/README.md:**
 
 ```markdown
 | [<Model Name>](MODELS.md#<anchor>) | <ctx> | ✅/❌ | ✅/❌ | ✅/❌ | <size> |
@@ -91,6 +114,6 @@ Fetch the HuggingFace URL to get:
 - `<anchor>` = heading slug (lowercase, spaces→hyphens, punctuation stripped)
 - Columns: Model (linked), Ctx, Tool, Vision, Think, Size
 
-### 5. Offer to bench
+### 6. Offer to bench
 Ask the user: "Download complete. Run bench sweep now? (context depth + KV cache type)"
 If yes, run the standard full bench from the /bench command and append results to the model's section in MODELS.md.
