@@ -630,3 +630,159 @@ llama-server \
   --flash-attn 1 \
   --host 0.0.0.0 --port 8080
 ```
+
+---
+
+## Qwen3.5-27B
+
+**URL:** https://huggingface.co/unsloth/Qwen3.5-27B-GGUF
+**Released:** 2026-02-24 | **Updated:** 2026-03-02 | **Likes:** 211
+**Local:** /mnt/data/models/unsloth/Qwen3.5-27B-GGUF/
+
+**Summary:** Alibaba's unified vision-language foundation model with a hybrid Gated DeltaNet + Attention + MoE architecture. Early fusion multimodal training, extended thinking, tool use, 201 languages. Same generation as Qwen3.5-35B-A3B but dense-ish 27B with a novel linear-attention hybrid.
+
+**Features:**
+- ✅ Tool calling (OpenAI-compatible)
+- ✅ Vision/multimodal (image, video, documents) — mmproj: `mmproj-F16.gguf`
+- ✅ Thinking/reasoning mode (enabled by default, `<think>` blocks)
+- ✅ Long context: 262k native, 1M with YaRN
+- ✅ 201 languages
+
+**Architecture:** 27B params | Hybrid DeltaNet + Attention + sparse MoE | 64 layers
+Hidden layout: 16 × (3 × (Gated DeltaNet → FFN) → 1 × (Gated Attention → FFN))
+- **DeltaNet layers (48):** 48 V-heads / 16 QK-heads, head_dim 128 (linear attention — no KV cache)
+- **Attention layers (16):** 24 Q-heads / 4 KV-heads, head_dim 256, RoPE dim 64
+- FFN intermediate: 17,408, sparse MoE
+- Only 16/64 layers maintain KV cache → very efficient at long context
+
+**KV cache estimate (16 attention layers, 4 KVH, head_dim 256):**
+
+| ctx   | f16    | q8_0   | q4_0   |
+|-------|--------|--------|--------|
+| 32k   | ~2.1G  | ~1.1G  | ~0.5G  |
+| 131k  | ~8.6G  | ~4.3G  | ~2.1G  |
+
+**Recommended sampling:**
+
+| Mode | Use case | temp | top-p | top-k | presence-penalty |
+|------|----------|------|-------|-------|-----------------|
+| Thinking | General tasks | 1.0 | 0.95 | 20 | 1.5 |
+| Thinking | Precise coding | 0.6 | 0.95 | 20 | 0.0 |
+| Non-thinking | General tasks | 0.7 | 0.8 | 20 | 1.5 |
+| Non-thinking | Reasoning tasks | 1.0 | 1.0 | 40 | 2.0 |
+
+Use `--presence-penalty` (not `--repeat-penalty`) as the anti-repetition knob for this model.
+
+**To disable thinking mode** (non-thinking/instruct behavior):
+```
+--chat-template-kwargs '{"enable_thinking": false}'
+```
+
+### Quant Inventory
+
+| file | quant | size | status |
+|------|-------|------|--------|
+| Qwen3.5-27B-UD-Q4_K_XL.gguf | UD-Q4_K_XL | 17.6 GiB | ✅ keep |
+| Qwen3.5-27B-UD-Q5_K_XL.gguf | UD-Q5_K_XL | 20.2 GiB | ✅ keep |
+| mmproj-F16.gguf | F16 | 0.9 GiB | ✅ keep (required for vision) |
+
+### Bench Results (2026-03-04)
+
+**Context depth (q8_0 KV):**
+
+| quant      | pp@512   | pp@4096  | pp@16384 | pp@65536 | tg@128 |
+|------------|----------|----------|----------|----------|--------|
+| UD-Q4_K_XL | 3237 t/s | 3195 t/s | 3116 t/s | 2399 t/s | 61 t/s |
+| UD-Q5_K_XL | 3117 t/s | 3072 t/s | 2907 t/s | 2302 t/s | 55 t/s |
+
+Moderate long-context degradation: pp@65k = 74% of pp@512.
+
+**KV cache type (pp@4096):**
+
+| quant      | ctk   | ctv   | pp t/s | tg t/s | total @131k |
+|------------|-------|-------|--------|--------|-------------|
+| UD-Q4_K_XL | f16   | f16   | 3264   | **62** | ~26 GiB ✅ ⭐ |
+| UD-Q4_K_XL | q8_0  | q8_0  | 3195   | 61     | ~22 GiB ✅  |
+| UD-Q4_K_XL | q4_0  | q8_0  | 3279   | 60     | ~20 GiB ✅  |
+| UD-Q4_K_XL | q4_0  | q4_0  | 3155   | 60     | ~20 GiB ✅  |
+| UD-Q5_K_XL | f16   | f16   | 3035   | **55** | ~29 GiB ✅ ⭐ |
+| UD-Q5_K_XL | q8_0  | q8_0  | 3072   | 55     | ~25 GiB ✅  |
+| UD-Q5_K_XL | q4_0  | q8_0  | 3030   | 55     | ~23 GiB ✅  |
+| UD-Q5_K_XL | q4_0  | q4_0  | 3044   | 55     | ~22 GiB ✅  |
+
+KV type is noise on this model — all tg within ±2 t/s. Dense 27B is entirely weight-bound at 55–62 t/s.
+Use f16 KV always (trivially fits, simplest config).
+
+**Sweet spots:**
+- `UD-Q4_K_XL + f16/f16` — 62 t/s tg, ~26 GiB, 6 GiB headroom ⭐
+- `UD-Q5_K_XL + f16/f16` — 55 t/s tg, ~29 GiB, quality-first, 3 GiB headroom ⭐
+
+**Comparison vs Qwen3.5-35B-A3B (MoE, 3B active):**
+- tg: 61 vs 176 t/s (3× slower — full 27B dense vs 3B active)
+- pp: 3237 vs 5939 t/s (1.8× slower)
+- Trade-off: denser model → more capacity per param, slower inference
+
+### Example Commands
+
+**llama-cli (Q4_K_XL):**
+```bash
+llama-cli \
+  --model /mnt/data/models/unsloth/Qwen3.5-27B-GGUF/Qwen3.5-27B-UD-Q4_K_XL.gguf \
+  --jinja \
+  --n-gpu-layers 99 \
+  --batch-size 1024 \
+  --ubatch-size 1024 \
+  --ctx-size 131072 \
+  --cache-type-k f16 \
+  --cache-type-v f16 \
+  --temp 0.7 --min-p 0.0 --top-p 0.8 --top-k 20 --presence-penalty 1.5 \
+  --flash-attn 1 \
+  --conversation
+```
+
+**llama-server (Q4_K_XL):**
+```bash
+llama-server \
+  --model /mnt/data/models/unsloth/Qwen3.5-27B-GGUF/Qwen3.5-27B-UD-Q4_K_XL.gguf \
+  --jinja \
+  --n-gpu-layers 99 \
+  --batch-size 1024 \
+  --ubatch-size 1024 \
+  --ctx-size 131072 \
+  --cache-type-k f16 \
+  --cache-type-v f16 \
+  --temp 0.7 --top-p 0.8 --top-k 20 --presence-penalty 1.5 \
+  --flash-attn 1 \
+  --host 0.0.0.0 --port 8080
+```
+
+### Vision Usage
+
+> **Note:** Vision requires `llama-mtmd-cli`, NOT `llama-cli`. The standard `llama-cli` does not
+> support `--mmproj` or `--image`. `llama-server` supports `--mmproj` for API-based vision.
+
+#### llama-mtmd-cli (interactive conversation with images)
+```bash
+llama-mtmd-cli \
+  --model /mnt/data/models/unsloth/Qwen3.5-27B-GGUF/Qwen3.5-27B-UD-Q4_K_XL.gguf \
+  --mmproj /mnt/data/models/unsloth/Qwen3.5-27B-GGUF/mmproj-F16.gguf \
+  --n-gpu-layers 99 \
+  --ctx-size 16384 \
+  --cache-type-k f16 --cache-type-v f16 \
+  --flash-attn 1 \
+  --temp 0.7 --top-p 0.8 --top-k 20
+```
+> **Note:** Do NOT use `--jinja` with `llama-mtmd-cli` — it conflicts with the vision template handling and causes a crash.
+Then type your prompt. To include an image in conversation: `/path/to/image.jpg\nYour prompt here`
+
+#### llama-server (API-based vision)
+```bash
+llama-server \
+  --model /mnt/data/models/unsloth/Qwen3.5-27B-GGUF/Qwen3.5-27B-UD-Q4_K_XL.gguf \
+  --mmproj /mnt/data/models/unsloth/Qwen3.5-27B-GGUF/mmproj-F16.gguf \
+  --n-gpu-layers 99 \
+  --ctx-size 16384 \
+  --cache-type-k f16 --cache-type-v f16 \
+  --flash-attn 1 \
+  --host 0.0.0.0 --port 8080
+```

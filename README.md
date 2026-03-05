@@ -18,6 +18,7 @@ Personal GGUF model workspace on RTX 5090 — download, bench, and serve local L
 | [Qwen3-4B-Instruct-2507](MODELS.md#qwen3-4b-instruct-2507) | 262k | ✅ | ❌ | ❌ | 2.4 GiB |
 | [Qwen3-4B-Thinking-2507](MODELS.md#qwen3-4b-thinking-2507) | 262k | ❌ | ❌ | ✅ | 2.4 GiB |
 | [gpt-oss-20b](MODELS.md#gpt-oss-20b) | 131k | ✅ | ❌ | ✅ | 11 GiB |
+| [Qwen3.5-27B](MODELS.md#qwen35-27b) | 262k | ✅ | ✅ | ✅ | 17.6 / 20.2 GiB |
 
 ## Directory Layout
 
@@ -40,6 +41,12 @@ Personal GGUF model workspace on RTX 5090 — download, bench, and serve local L
 | `/download <hf-url> [pattern]` | Download a GGUF from HuggingFace, record metadata in MODELS.md, optionally bench |
 | `/bench <model.gguf> [...]` | Run llama-bench sweep (context depth + KV cache types), write results to MODELS.md |
 | `/monitor` | Snapshot VRAM usage, detect running llama process, suggest flag adjustments to fit in 32 GB |
+| `/service:create [--port N] [--name NAME]` | Create a systemd user service for llama-server |
+| `/service:stop [--name NAME]` | Stop the service and free VRAM |
+| `/service:start [--name NAME]` | Start an existing service and verify health |
+| `/service:info [--name NAME]` | Show service status, VRAM, and health check |
+| `/service:logs [--name NAME] [--lines N]` | Show journal output for the service |
+| `/service:destroy [--name NAME]` | Stop, disable, and delete the service |
 
 ## Quick Start
 
