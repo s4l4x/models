@@ -1,5 +1,5 @@
 ---
-description: Create a systemd user service for llama-server. Usage: /service:create [--port N] [--name NAME]
+description: Create a systemd user service for llama-server. Usage: /service:create [--port N] [--name NAME] [--host ADDR]
 ---
 
 Create a persistent, reboot-surviving llama-server managed as a systemd user service. Walk the
@@ -8,7 +8,7 @@ file, enable and start the service, then log the launch to HISTORY.md.
 
 ## Step 1: Parse arguments
 
-Extract `--port` (default: 8080) and `--name` (default: `llama-server`) from `$ARGUMENTS`.
+Extract `--port` (default: 8080), `--name` (default: `llama-server`), and `--host` (default: `127.0.0.1`) from `$ARGUMENTS`. Use `0.0.0.0` when the server needs to be reachable from Docker containers or other machines on the network.
 
 ## Step 2: Read MODELS.md and build model inventory
 
@@ -92,7 +92,7 @@ Recommended config for <Model> <Quant>:
   --jinja           (omit for gpt-oss-20b and Gemma)
   --flash-attn 1
   --threads         8
-  --host            127.0.0.1
+  --host            <host>    (127.0.0.1 = local only; 0.0.0.0 = network/Docker)
   --port            <port>
 
 Estimated VRAM: ~<X> GiB / 32 GiB (<Y> GiB headroom)
@@ -166,7 +166,7 @@ Final ExecStart:
   <bin_dir>/llama-server --model <path> [--mmproj <path>] [--jinja] \
     --n-gpu-layers 99 --batch-size <bs> --ubatch-size <ubs> \
     --ctx-size <ctx> --cache-type-k <ctk> --cache-type-v <ctv> \
-    <sampling> --flash-attn 1 --threads <n> --host 127.0.0.1 --port <port> [extra]
+    <sampling> --flash-attn 1 --threads <n> --host <host> --port <port> [extra]
 
 Proceed? (Y/n):
 ```
@@ -196,7 +196,7 @@ After=network.target
 Type=simple
 Environment="GGML_CUDA_ENABLE_UNIFIED_MEMORY=1"
 Environment="PATH=/home/<username>/.local/bin:/usr/local/bin:/usr/bin:/bin"
-ExecStart=<bin_dir>/llama-server --model <model_path> [--mmproj <mmproj_path>] [--jinja] --n-gpu-layers 99 --batch-size <bs> --ubatch-size <ubs> --ctx-size <ctx> --cache-type-k <ctk> --cache-type-v <ctv> <sampling flags> --flash-attn 1 --threads <threads> --host 127.0.0.1 --port <port> [extra flags]
+ExecStart=<bin_dir>/llama-server --model <model_path> [--mmproj <mmproj_path>] [--jinja] --n-gpu-layers 99 --batch-size <bs> --ubatch-size <ubs> --ctx-size <ctx> --cache-type-k <ctk> --cache-type-v <ctv> <sampling flags> --flash-attn 1 --threads <threads> --host <host> --port <port> [extra flags]
 Restart=on-failure
 RestartSec=5
 StandardOutput=journal
